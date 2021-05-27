@@ -41,7 +41,8 @@ bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req,
 {
 
     bool state = req.data;
-    
+    ROS_INFO("Start Callback received request");
+
     if(state){
         res.success = true;
         res.message = "Node started!";
@@ -52,6 +53,7 @@ bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req,
         std_srvs::SetBool obc;
         obc.request.data = false;
         onboard_ctl_.call(obc);
+        ROS_INFO_STREAM("OBC Response on Disabling: " << obc.response.success << " - " << obc.response.message);
         start_node_ = true;
     }else{
         res.success = true;
@@ -61,6 +63,7 @@ bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req,
         std_srvs::SetBool obc;
         obc.request.data = true;
         onboard_ctl_.call(obc);
+        ROS_INFO_STREAM("OBC Response on Enabling: " << obc.response.success << " - " << obc.response.message);
         start_node_ = false;
     }
 
@@ -86,11 +89,11 @@ void SimpleControlExample::TwistCallback(const geometry_msgs::TwistStamped::Cons
 void SimpleControlExample::SetServices()
 {
     // Astrobee control disable and timeout change service
-    onboard_ctl_ = nh_.serviceClient<std_srvs::SetBool>("~onboard_ctl_enable_srv");
-    pmc_timeout_ = nh_.serviceClient<ff_msgs::SetFloat>("~pmc_timeout_srv");
+    onboard_ctl_ = nh_.serviceClient<std_srvs::SetBool>("onboard_ctl_enable_srv");
+    pmc_timeout_ = nh_.serviceClient<ff_msgs::SetFloat>("pmc_timeout_srv");
 
     // Start Service
-    start_service_ = nh_.advertiseService("~start_srv", &SimpleControlExample::StartServiceCallback, this);
+    start_service_ = nh_.advertiseService("start_srv", &SimpleControlExample::StartServiceCallback, this);
 
     // Wait for services to be advertised
     onboard_ctl_.waitForExistence();
@@ -102,12 +105,12 @@ void SimpleControlExample::SetServices()
 void SimpleControlExample::SetPublishersSubscribers()
 {
     // Set Subscribers
-    pose_sub_ = nh_.subscribe("~pose_topic", 1, &SimpleControlExample::PoseCallback, this);
-    twist_sub_ = nh_.subscribe("~twist_topic", 1, &SimpleControlExample::TwistCallback, this);
+    pose_sub_ = nh_.subscribe("pose_topic", 1, &SimpleControlExample::PoseCallback, this);
+    twist_sub_ = nh_.subscribe("twist_topic", 1, &SimpleControlExample::TwistCallback, this);
 
     // Set Publishers
-    control_pub_ = nh_.advertise<ff_msgs::FamCommand>("~control_topic", 1);
-    flight_mode_pub_ = nh_.advertise<ff_msgs::FlightMode>("~flight_mode", 1);
+    control_pub_ = nh_.advertise<ff_msgs::FamCommand>("control_topic", 1);
+    flight_mode_pub_ = nh_.advertise<ff_msgs::FlightMode>("flight_mode", 1);
 }
 
 bool SimpleControlExample::CheckDataValidity(double t)
@@ -120,8 +123,8 @@ bool SimpleControlExample::CheckDataValidity(double t)
     if(ros::Time::now().toSec() - twist_time_ < TS_THRESHOLD) vel_val = true;
     // TODO(@User): Add further conditions that are needed for control update
     
-    if(!pos_val or !vel_val) 
-        ROS_WARN_STREAM("Skipping control. Validity flags:\n Pos:" << pos_val << " - Vel: %d" << vel_val);
+    if(!pos_val || !vel_val) 
+        ROS_WARN_STREAM("Skipping control. Validity flags:\n Pos:" << pos_val << " - Vel: " << vel_val);
         
     return pos_val && vel_val;
 }
@@ -148,7 +151,9 @@ void SimpleControlExample::PublishFlightMode()
     std::string flight_mode_name = "difficult";  // To have full access to Astrobee actuators range
     ff_msgs::FlightMode flight_mode_;
     ff_util::FlightUtil::GetFlightMode(flight_mode_, flight_mode_name);
+    flight_mode_.control_enabled = false;
     flight_mode_pub_.publish(flight_mode_);
+    return;
 }
 
 int SimpleControlExample::Run()
@@ -162,6 +167,7 @@ int SimpleControlExample::Run()
         if(!start_node_){
             ROS_INFO("Sleeping...");
             rate_.sleep();
+            ros::spinOnce();
             continue;
         }
 
@@ -170,6 +176,7 @@ int SimpleControlExample::Run()
         data_validity_ = CheckDataValidity(t_);
         if(!data_validity_){
             rate_.sleep();
+            ros::spinOnce();
             continue;
         }
 
@@ -194,6 +201,7 @@ int SimpleControlExample::Run()
 
         // Sleep for remaining time...
         rate_.sleep();
+        ros::spinOnce();
     }
 
     return 0;
@@ -202,10 +210,9 @@ int SimpleControlExample::Run()
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "talker");
-    ros::NodeHandle n("");
+    ros::NodeHandle n("~");
 
     SimpleControlExample ctl(n);
-    ros::spin();
 
     return 0;
 }

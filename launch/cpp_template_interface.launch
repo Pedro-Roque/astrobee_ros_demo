@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot" default="$(optenv ASTROBEE_ROBOT honey)" />
+    <arg name="world" default="$(optenv ASTROBEE_WORLD iss)" />
+
+    <!-- Set env variables -->
+    <env name="ASTROBEE_ROBOT" value="$(arg robot)" />
+    <env name="ASTROBEE_WORLD" value="$(arg world)" />
+    <env if="$(eval optenv('ASTROBEE_CONFIG_DIR','')=='')"
+        name="ASTROBEE_CONFIG_DIR" value="$(find astrobee)/config" />
+    <env if="$(eval optenv('ASTROBEE_RESOURCE_DIR','')=='')"
+        name="ASTROBEE_RESOURCE_DIR" value="$(find astrobee)/resources" />
+    <env if="$(eval optenv('ROSCONSOLE_CONFIG_FILE','')=='')"
+        name="ROSCONSOLE_CONFIG_FILE" value="$(find astrobee)/resources/logging.config"/>
+
+    <!-- Replace the robot namespace with the most suitable one -->
+    <group ns="$(arg robot)">
+        <node pkg="astrobee_ros_demo" type="cpp_ros_node_template" name="template_iface" output="screen">
+            <!-- Topics -->
+            <remap from="~pose_topic" to="loc/pose"/>
+            <remap from="~twist_topic" to="loc/twist"/>
+            <remap from="~control_topic" to="gnc/ctl/command"/>
+            <remap from="~flight_mode" to="mob/flight_mode"/>
+            <!-- Services -->
+            <remap from="~onboard_ctl_enable_srv" to="gnc/ctl/enable"/>
+            <remap from="~pmc_timeout_srv" to="hw/pmc/set_timeout"/>
+            <remap from="~start_srv" to="start"/>
+        </node> 
+    </group>
+</launch>

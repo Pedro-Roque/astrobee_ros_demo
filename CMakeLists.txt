@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs ff_common ff_util s
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+set(astrobeeLibraries $ENV{BUILD_PATH}/devel/lib)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -100,7 +100,7 @@ catkin_python_setup()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
    INCLUDE_DIRS include
-#  LIBRARIES astrobee_ros_demo
+   LIBRARIES ff_common ff_flight
    CATKIN_DEPENDS roscpp geometry_msgs ff_common ff_flight std_srvs
 )
 
@@ -140,7 +140,7 @@ add_executable(cpp_ros_node_template nodes/cpp_ros_node_template.cpp)
 ## same as for the library above
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(cpp_ros_node_template ${catkin_LIBRARIES} ff_common ff_flight
+target_link_libraries(cpp_ros_node_template ${catkin_LIBRARIES} ${astrobeeLibraries}/libff_common.so ${astrobeeLibraries}/libff_flight.so
 )
 
 add_dependencies(cpp_ros_node_template
