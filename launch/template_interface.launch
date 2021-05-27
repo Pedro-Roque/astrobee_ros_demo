@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <group ns="honey">
+        <node pkg="astrobee_ros_demo" type="ros_node_template.py" name="template_iface" output="screen">
+            <!-- Topics -->
+            <remap from="~pose_topic" to="loc/pose"/>
+            <remap from="~twist_topic" to="loc/twist"/>
+            <remap from="~control_topic" to="gnc/ctl/command"/>
+            <remap from="~flight_mode" to="mob/flight_mode"/>
+            <!-- Services -->
+            <remap from="~onboard_ctl_enable_srv" to="gnc/ctl/enable"/>
+            <remap from="~pmc_timeout_srv" to="hw/pmc/set_timeout"/>
+            <remap from="~start_srv" to="start"/>
+        </node> 
+    </group>
+</launch>
