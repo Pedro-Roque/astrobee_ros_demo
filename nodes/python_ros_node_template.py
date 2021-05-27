@@ -28,7 +28,6 @@ class SimpleControlExample(object):
         self.start = False
         self.state = np.zeros((13, 1))
         self.state[9] = 1
-        self.rg = None
         self.t0 = 0.0
         self.twist = None
         self.pose = None
@@ -37,7 +36,6 @@ class SimpleControlExample(object):
         self.ts_threshold = 1.0
         self.pose_ts = 0.0
         self.twist_ts = 0.0
-        self.f1_position_ts = 0.0
 
         # Set publishers and subscribers
         self.set_services()
@@ -205,30 +203,12 @@ class SimpleControlExample(object):
 
         return pos_val and vel_val
 
-    def prepare_request(self, t):
-        """
-        Helper function to prepare the control request.
-
-        :return: control service request
-        :rtype: reswarm_dmpc.srv.GetControlRequest
-        """
-
-        # Get trajectory
-        val = False
-        val = self.check_data_validity()
-        rospy.loginfo("Validity: " + str(val))
-        if val is False:
-            return val
-
-        val = True
-        return val
-
     def create_control_message(self):
         """
         Helper function to create the control message to be published
 
         :return: control input to vehicle
-        :rtype: geometry_msgs.msg.WrenchStamped()
+        :rtype: ff_msgs.msg.FamCommand()
         """
 
         # Create message
@@ -255,6 +235,9 @@ class SimpleControlExample(object):
     def create_flight_mode_message(self):
         """
         Helper function to create the flight mode message.
+
+        Here we use the flight-mode difficult to have full access to the
+        actuation capabilities of the Astrobee.
         """
 
         fm = ff_msgs.msg.FlightMode()
@@ -302,12 +285,16 @@ class SimpleControlExample(object):
 
             # Use self.pose, self.twist to generate a control input
             t = rospy.get_time() - self.t0
-            val = self.prepare_request(t)
+            val = self.check_data_validity()
             if val is False:
                 self.rate.sleep()
                 continue
 
-            # Start the control section
+            # - Start of the control section
+            #
+            # Here the user should modify the variable u_traj that is posteriorly sent
+            # to the robot. The variable u_traj is an array containing a 3D force
+            # (on u_traj[0:3]) and 3D torque (on u_traj[3:]).
             tin = rospy.get_time()
             self.u_traj = np.zeros((6, ))  # TODO(@User): use your controller here
             tout = rospy.get_time() - tin

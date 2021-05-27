@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Replace the robot namespace with the most suitable one -->
     <group ns="honey">
-        <node pkg="astrobee_ros_demo" type="ros_node_template.py" name="template_iface" output="screen">
+        <node pkg="astrobee_ros_demo" type="python_ros_node_template.py" name="template_iface" output="screen">
             <!-- Topics -->
             <remap from="~pose_topic" to="loc/pose"/>
             <remap from="~twist_topic" to="loc/twist"/>
