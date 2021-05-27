@@ -6,14 +6,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import time
 import math
 import numpy as np
-import casadi as ca
-import casadi.tools as ctools
-
-from scipy.stats import norm
-import scipy.linalg
 
 
 class Vec(object):

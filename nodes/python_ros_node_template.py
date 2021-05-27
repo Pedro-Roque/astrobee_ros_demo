@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import numpy as np
-from numpy.core.numeric import Inf
 import rospy
 
 from astrobee_ros_demo.util import *
