@@ -11,15 +11,15 @@ import ff_msgs.msg
 import ff_msgs.srv
 
 
-class DistributedMPC(object):
+class SimpleControlExample(object):
     """
-    Class implementing the distributed formation control MPC
-    on the NASA Astrobees.
+    Class implementing a simple controller example that
+    does absolutely nothing on the NASA Astrobees.
     """
 
     def __init__(self):
         """
-        Initialize Distributed MPC Class
+        Initialize controller class
         """
 
         # Initialize basic parameters
@@ -307,7 +307,7 @@ class DistributedMPC(object):
                 self.rate.sleep()
                 continue
 
-            # Start the RTI Loop
+            # Start the control section
             tin = rospy.get_time()
             self.u_traj = np.zeros((6, ))  # TODO(@User): use your controller here
             tout = rospy.get_time() - tin
@@ -326,6 +326,6 @@ class DistributedMPC(object):
 
 if __name__ == "__main__":
     rospy.init_node("node_template")
-    dmpc = DistributedMPC()
+    dmpc = SimpleControlExample()
     rospy.spin()
     pass
