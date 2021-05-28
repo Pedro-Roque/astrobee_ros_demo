@@ -2,6 +2,11 @@
 
 SimpleControlExample::SimpleControlExample(const ros::NodeHandle &nh):
 nh_(nh), start_node_(false), rate_(5){
+    /**
+     * @brief Simple example class initializer.
+     * 
+     * @param nh ROS nodehandler for this node.
+     */
 
     // Initialize class variables
     rate_ = ros::Rate(5);
@@ -39,6 +44,14 @@ SimpleControlExample::~SimpleControlExample()
 
 bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
 {
+    /**
+     * @brief Callback for the node start service
+     * 
+     * @param req service request 
+     * 
+     * @param res service response message
+     * 
+     */
 
     bool state = req.data;
     ROS_INFO("Start Callback received request");
@@ -72,12 +85,24 @@ bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req,
 
 void SimpleControlExample::PoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
+    /**
+     * @brief Callback for the pose subscriber.
+     * 
+     * @param msg pose message
+     * 
+     */
     pose_time_ = msg->header.stamp.toSec();
     pose_ = *msg;
 }
 
 void SimpleControlExample::TwistCallback(const geometry_msgs::TwistStamped::ConstPtr &msg)
 {
+    /**
+     * @brief Callback for the twist subsriber, containing the estimated velocity.
+     * 
+     * @param msg twist message
+     * 
+     */
     twist_time_ = msg->header.stamp.toSec();
     twist_ = *msg;
 }
@@ -88,6 +113,10 @@ void SimpleControlExample::TwistCallback(const geometry_msgs::TwistStamped::Cons
 
 void SimpleControlExample::SetServices()
 {
+    /**
+     * @brief Helper function to initialized required services.
+     * 
+     */
     // Astrobee control disable and timeout change service
     onboard_ctl_ = nh_.serviceClient<std_srvs::SetBool>("onboard_ctl_enable_srv");
     pmc_timeout_ = nh_.serviceClient<ff_msgs::SetFloat>("pmc_timeout_srv");
@@ -104,6 +133,10 @@ void SimpleControlExample::SetServices()
 
 void SimpleControlExample::SetPublishersSubscribers()
 {
+    /**
+     * @brief Helper function to setup publishers and subscribers
+     * 
+     */
     // Set Subscribers
     pose_sub_ = nh_.subscribe("pose_topic", 1, &SimpleControlExample::PoseCallback, this);
     twist_sub_ = nh_.subscribe("twist_topic", 1, &SimpleControlExample::TwistCallback, this);
@@ -115,6 +148,12 @@ void SimpleControlExample::SetPublishersSubscribers()
 
 bool SimpleControlExample::CheckDataValidity(double t)
 {
+    /**
+     * @brief Function that checks the expiration of the last pose and velocity received
+     * 
+     * @param t time since node was activated - can be used for further validitions by the user
+     * 
+     */
     
     bool pos_val = false;
     bool vel_val = false;
@@ -131,6 +170,10 @@ bool SimpleControlExample::CheckDataValidity(double t)
 
 void SimpleControlExample::PublishControl()
 {
+    /**
+     * @brief Helper function to publish the control setpoint to the Fam module.
+     * 
+     */
     ff_msgs::FamCommand gnc_setpoint_;
 
     gnc_setpoint_.header.frame_id = "body";
@@ -148,6 +191,10 @@ void SimpleControlExample::PublishControl()
 
 void SimpleControlExample::PublishFlightMode()
 {
+    /**
+     * @brief Helper function to publish the flight mode message
+     * 
+     */
     std::string flight_mode_name = "difficult";  // To have full access to Astrobee actuators range
     ff_msgs::FlightMode flight_mode_;
     ff_util::FlightUtil::GetFlightMode(flight_mode_, flight_mode_name);
@@ -158,6 +205,10 @@ void SimpleControlExample::PublishFlightMode()
 
 int SimpleControlExample::Run()
 {
+    /**
+     * @brief Main loop for the simple control example class.
+     * 
+     */
 
     double ctl_elapsed_;
 

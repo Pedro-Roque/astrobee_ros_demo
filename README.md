@@ -36,9 +36,13 @@ rosservice call /honey/start "data: true"
 At this point, the template node output should show "Elapsed time: 0" as a ROS Info message, since there is no control input being generated.
 
 ## How to interface my own control algorithm?
-This package serves as a template for those looking to use the Astrobee for autonomous operations. Your controllers can be included diretly on the templated code, by modifying the variables [self.u_traj](https://github.com/Pedro-Roque/astrobee_ros_demo/blob/main/nodes/python_ros_node_template.py#L298) in Python or [control_input_](https://github.com/Pedro-Roque/astrobee_ros_demo/blob/main/nodes/cpp_ros_node_template.cpp#L187) in C++. This can be accomplished either by 
+This package serves as a template for those looking to use the Astrobee for autonomous operations. Your controllers can be included diretly on the templated code, by modifying the variables [self.u_traj](https://github.com/Pedro-Roque/astrobee_ros_demo/blob/main/nodes/python_ros_node_template.py#L298) in Python or [control_input_](https://github.com/Pedro-Roque/astrobee_ros_demo/blob/main/nodes/cpp_ros_node_template.cpp#L238) in C++. This can be accomplished either by 
 1. Subscribing to another node that runs your control method that modifies these variables directly, or 
 2. Modifying the template to include your control method in the class itself
+
+A list of packages interfacing with Astrobee similarly are:
+1. [ReSwarm DMPC](https://github.com/Pedro-Roque/reswarm_dmpc): unit tests and formation control for a group of Astrobee's
+
 
 ## Contributing
 Contributions to this repository to include more functionaly are welcome, as long as they follow these guideles:
