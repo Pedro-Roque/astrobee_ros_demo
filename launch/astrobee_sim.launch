@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find astrobee)/launch/sim.launch" >
+        <arg name="dds" value="false"/>
+        <arg name="rviz" value="true"/>
+        <arg name="default" value="false"/>
+        <!-- Spawn Honey -->
+        <arg name="honey" value="true"/>
+    </include>
+</launch>

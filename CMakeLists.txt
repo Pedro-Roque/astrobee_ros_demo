@@ -11,8 +11,13 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs ff_common ff_util s
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-set(astrobeeLibraries $ENV{BUILD_PATH}/devel/lib)
-
+if (DEFINED ENV{BUILD_PATH})
+    message("[Astrobee ROS Demo] Environment variable $BUILD_PATH found")
+    set(astrobeeLibraries $ENV{BUILD_PATH}/devel/lib)
+else ()
+    message("[Astrobee ROS Demo] Using default build directory")
+    set(astrobeeLibraries $ENV{HOME}/astrobee_build/native)
+endif()
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
