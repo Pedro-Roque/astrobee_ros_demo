@@ -1,6 +1,8 @@
 # Astrobee ROS Guest Science Demo
 This package contains two simple examples to interface custom ROS nodes for autonomous control: one using Python - `nodes/python_ros_node_template.py` - and one using C++ - `nodes/cpp_ros_node_template.py`. Both nodes have associated launch files under the `launch/` directory.
 
+This package is managed by Pedro Roque (@Pedro-Roque), Keenan Albee (@albee), Monica Ekal (@monica-ekal) and Bryce Doerr (@brycedoerr). 
+
 ## Installation
 To install this package, make sure that you followed the [Astrobee Installation Guide](https://nasa.github.io/astrobee/html/md_INSTALL.html) for building the code natively. 
 
@@ -49,3 +51,6 @@ Contributions to this repository to include more functionaly are welcome, as lon
 1. Python code should follow PEP-8 guidelines (exceptions are made for `E501` as long as each line is not over 120 characters, and `W503`)
 2. Templates should be atomic, and properly documented (for Python, Sphinx is recommend, while for C++ Doxygen with Google-style)
 3. A basic Readme should be provided on how to use the added code, or modifications to an existing Readme should be suggested
+
+## Acknowledgements 
+A special thanks goes for Brian Coltin (@bcoltin) and Rubén Ruiz (@rgarciaruiz), as well as to all the Astrobee Ops team, for their support in-view of the MPP ReSWARM test sessions and Astrobee Flight Software.
