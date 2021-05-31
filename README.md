@@ -7,7 +7,7 @@ To install this package, make sure that you followed the [Astrobee Installation 
 Assuming your catkin workspace is set at `~/catkin_ws`, then
 ```
 cd ~/catkin_ws
-git clone https://github.com/Pedro-Roque/astrobee_ros_demo.git src/.
+git clone https://github.com/Pedro-Roque/astrobee_ros_demo.git src/astrobee_ros_demo
 catkin build
 source devel/setup.bash
 ```
