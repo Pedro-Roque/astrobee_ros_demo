@@ -243,7 +243,6 @@ class SimpleControlExample(object):
 
         fm.name = "difficult"
 
-        fm.collision_radius = 0.25
         fm.control_enabled = False
 
         fm.att_ki = Vec(0.002, 0.002, 0.002)
