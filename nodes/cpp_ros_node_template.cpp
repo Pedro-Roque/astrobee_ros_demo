@@ -1,10 +1,11 @@
 #include "astrobee_ros_demo/cpp_ros_node_template.h"
+#include "geometry_msgs/Vector3.h"
 
-SimpleControlExample::SimpleControlExample(const ros::NodeHandle &nh):
-nh_(nh), start_node_(false), rate_(5){
+SimpleControlExample::SimpleControlExample(const ros::NodeHandle &nh) : nh_(nh), start_node_(false), rate_(5)
+{
     /**
      * @brief Simple example class initializer.
-     * 
+     *
      * @param nh ROS nodehandler for this node.
      */
 
@@ -20,18 +21,19 @@ nh_(nh), start_node_(false), rate_(5){
 
     // Change PMC timeout
     ff_msgs::SetFloat new_timeout;
-    
+
     new_timeout.request.data = 1.5;
     pmc_timeout_.call(new_timeout);
-    if(!new_timeout.response.success)
+    if (!new_timeout.response.success)
     {
         ROS_ERROR("Couldn't change PMC timeout.");
-    }else{
+    }
+    else
+    {
         ROS_INFO("PMC Timeout Updated.");
     }
 
     Run();
-
 }
 
 SimpleControlExample::~SimpleControlExample()
@@ -39,24 +41,25 @@ SimpleControlExample::~SimpleControlExample()
 }
 
 /*---------------------------------------
-        START of Callbacks Section 
+        START of Callbacks Section
 ---------------------------------------*/
 
 bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
 {
     /**
      * @brief Callback for the node start service
-     * 
-     * @param req service request 
-     * 
+     *
+     * @param req service request
+     *
      * @param res service response message
-     * 
+     *
      */
 
     bool state = req.data;
     ROS_INFO("Start Callback received request");
 
-    if(state){
+    if (state)
+    {
         res.success = true;
         res.message = "Node started!";
 
@@ -68,7 +71,9 @@ bool SimpleControlExample::StartServiceCallback(std_srvs::SetBool::Request &req,
         onboard_ctl_.call(obc);
         ROS_INFO_STREAM("OBC Response on Disabling: " << obc.response.success << " - " << obc.response.message);
         start_node_ = true;
-    }else{
+    }
+    else
+    {
         res.success = true;
         res.message = "Node stopped!";
 
@@ -87,9 +92,9 @@ void SimpleControlExample::PoseCallback(const geometry_msgs::PoseStamped::ConstP
 {
     /**
      * @brief Callback for the pose subscriber.
-     * 
+     *
      * @param msg pose message
-     * 
+     *
      */
     pose_time_ = msg->header.stamp.toSec();
     pose_ = *msg;
@@ -99,23 +104,23 @@ void SimpleControlExample::TwistCallback(const geometry_msgs::TwistStamped::Cons
 {
     /**
      * @brief Callback for the twist subsriber, containing the estimated velocity.
-     * 
+     *
      * @param msg twist message
-     * 
+     *
      */
     twist_time_ = msg->header.stamp.toSec();
     twist_ = *msg;
 }
 
 /*---------------------------------------
-        END of Callbacks Section 
+        END of Callbacks Section
 ---------------------------------------*/
 
 void SimpleControlExample::SetServices()
 {
     /**
      * @brief Helper function to initialized required services.
-     * 
+     *
      */
     // Astrobee control disable and timeout change service
     onboard_ctl_ = nh_.serviceClient<std_srvs::SetBool>("onboard_ctl_enable_srv");
@@ -135,7 +140,7 @@ void SimpleControlExample::SetPublishersSubscribers()
 {
     /**
      * @brief Helper function to setup publishers and subscribers
-     * 
+     *
      */
     // Set Subscribers
     pose_sub_ = nh_.subscribe("pose_topic", 1, &SimpleControlExample::PoseCallback, this);
@@ -150,21 +155,23 @@ bool SimpleControlExample::CheckDataValidity(double t)
 {
     /**
      * @brief Function that checks the expiration of the last pose and velocity received
-     * 
+     *
      * @param t time since node was activated - can be used for further validitions by the user
-     * 
+     *
      */
-    
+
     bool pos_val = false;
     bool vel_val = false;
 
-    if(ros::Time::now().toSec() - pose_time_ < TS_THRESHOLD) pos_val = true;
-    if(ros::Time::now().toSec() - twist_time_ < TS_THRESHOLD) vel_val = true;
+    if (ros::Time::now().toSec() - pose_time_ < TS_THRESHOLD)
+        pos_val = true;
+    if (ros::Time::now().toSec() - twist_time_ < TS_THRESHOLD)
+        vel_val = true;
     // TODO(@User): Add further conditions that are needed for control update
-    
-    if(!pos_val || !vel_val) 
+
+    if (!pos_val || !vel_val)
         ROS_WARN_STREAM("Skipping control. Validity flags:\n Pos:" << pos_val << " - Vel: " << vel_val);
-        
+
     return pos_val && vel_val;
 }
 
@@ -172,7 +179,7 @@ void SimpleControlExample::PublishControl()
 {
     /**
      * @brief Helper function to publish the control setpoint to the Fam module.
-     * 
+     *
      */
     ff_msgs::FamCommand gnc_setpoint_;
 
@@ -193,12 +200,50 @@ void SimpleControlExample::PublishFlightMode()
 {
     /**
      * @brief Helper function to publish the flight mode message
-     * 
+     *
      */
-    std::string flight_mode_name = "difficult";  // To have full access to Astrobee actuators range
+    std::string flight_mode_name = "difficult"; // To have full access to Astrobee actuators range
     ff_msgs::FlightMode flight_mode_;
     ff_util::FlightUtil::GetFlightMode(flight_mode_, flight_mode_name);
     flight_mode_.control_enabled = false;
+    flight_mode_.control_enabled = false;
+
+    flight_mode_.att_ki.x = 0.002;
+    flight_mode_.att_ki.y = 0.002;
+    flight_mode_.att_ki.z = 0.002;
+
+    flight_mode_.att_kp.x = 4.0;
+    flight_mode_.att_kp.y = 4.0;
+    flight_mode_.att_kp.z = 4.0;
+
+    flight_mode_.omega_kd.x = 3.2;
+    flight_mode_.omega_kd.y = 3.2;
+    flight_mode_.omega_kd.z = 3.2;
+
+    flight_mode_.pos_kp.x = 0.6;
+    flight_mode_.pos_kp.y = 0.6;
+    flight_mode_.pos_kp.z = 0.6;
+
+    flight_mode_.pos_ki.x = 0.0001;
+    flight_mode_.pos_ki.y = 0.0001;
+    flight_mode_.pos_ki.z = 0.0001;
+
+    flight_mode_.vel_kd.x = 1.2;
+    flight_mode_.vel_kd.y = 1.2;
+    flight_mode_.vel_kd.z = 1.2;
+
+    flight_mode_.speed = 3;
+
+    flight_mode_.tolerance_pos = 0.2;
+    flight_mode_.tolerance_vel = 0;
+    flight_mode_.tolerance_att = 0.3490;
+    flight_mode_.tolerance_omega = 0;
+    flight_mode_.tolerance_time = 1.0;
+
+    flight_mode_.hard_limit_accel = 0.0200;
+    flight_mode_.hard_limit_omega = 0.5236;
+    flight_mode_.hard_limit_alpha = 0.2500;
+    flight_mode_.hard_limit_vel = 0.4000;
     flight_mode_pub_.publish(flight_mode_);
     return;
 }
@@ -207,7 +252,7 @@ int SimpleControlExample::Run()
 {
     /**
      * @brief Main loop for the simple control example class.
-     * 
+     *
      */
 
     double ctl_elapsed_;
@@ -215,7 +260,8 @@ int SimpleControlExample::Run()
     while (ros::ok())
     {
         // Check if node is active
-        if(!start_node_){
+        if (!start_node_)
+        {
             ROS_INFO("Sleeping...");
             rate_.sleep();
             ros::spinOnce();
@@ -225,7 +271,8 @@ int SimpleControlExample::Run()
         // Check if data is valid
         t_ = ros::Time::now().toSec() - starting_time_;
         data_validity_ = CheckDataValidity(t_);
-        if(!data_validity_){
+        if (!data_validity_)
+        {
             rate_.sleep();
             ros::spinOnce();
             continue;
@@ -233,7 +280,7 @@ int SimpleControlExample::Run()
 
         // Control Astrobee!
         ctl_elapsed_ = ros::Time::now().toSec();
-        
+
         // Set zeroed control input - TODO(@User): replace with whatever controller you like!
         control_input_.force.x = 0.0;
         control_input_.force.y = 0.0;
